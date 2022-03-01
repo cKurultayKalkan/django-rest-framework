@@ -1,6 +1,6 @@
 # [Django REST framework][docs]
 
-[![build-status-image]][travis]
+[![build-status-image]][build-status]
 [![coverage-status-image]][codecov]
 [![pypi-version]][pypi]
 
@@ -25,8 +25,10 @@ The initial aim is to provide a single full-time position on REST framework.
 [![][esg-img]][esg-url]
 [![][retool-img]][retool-url]
 [![][bitio-img]][bitio-url]
+[![][posthog-img]][posthog-url]
+[![][cryptapi-img]][cryptapi-url]
 
-Many thanks to all our [wonderful sponsors][sponsors], and in particular to our premium backers, [Sentry][sentry-url], [Stream][stream-url], [Rollbar][rollbar-url], [ESG][esg-url], [Retool][retool-url], and [bit.io][bitio-url].
+Many thanks to all our [wonderful sponsors][sponsors], and in particular to our premium backers, [Sentry][sentry-url], [Stream][stream-url], [Rollbar][rollbar-url], [ESG][esg-url], [Retool][retool-url], [bit.io][bitio-url], [PostHog][posthog-url], and [CryptAPI][cryptapi-url].
 
 ---
 
@@ -52,8 +54,8 @@ There is a live example API for testing purposes, [available here][sandbox].
 
 # Requirements
 
-* Python (3.5, 3.6, 3.7, 3.8, 3.9)
-* Django (2.2, 3.0, 3.1)
+* Python (3.6, 3.7, 3.8, 3.9, 3.10)
+* Django (2.2, 3.0, 3.1, 3.2, 4.0)
 
 We **highly recommend** and only officially support the latest patch release of
 each Python and Django series.
@@ -168,7 +170,7 @@ Or to create a new user:
 
 Full documentation for the project is available at [https://www.django-rest-framework.org/][docs].
 
-For questions and support, use the [REST framework discussion group][group], or `#restframework` on freenode IRC.
+For questions and support, use the [REST framework discussion group][group], or `#restframework` on libera.chat IRC.
 
 You may also want to [follow the author on Twitter][twitter].
 
@@ -176,8 +178,8 @@ You may also want to [follow the author on Twitter][twitter].
 
 Please see the [security policy][security-policy].
 
-[build-status-image]: https://secure.travis-ci.org/encode/django-rest-framework.svg?branch=master
-[travis]: https://travis-ci.org/encode/django-rest-framework?branch=master
+[build-status-image]: https://github.com/encode/django-rest-framework/actions/workflows/main.yml/badge.svg
+[build-status]: https://github.com/encode/django-rest-framework/actions/workflows/main.yml
 [coverage-status-image]: https://img.shields.io/codecov/c/github/encode/django-rest-framework/master.svg
 [codecov]: https://codecov.io/github/encode/django-rest-framework?branch=master
 [pypi-version]: https://img.shields.io/pypi/v/djangorestframework.svg
@@ -195,13 +197,17 @@ Please see the [security policy][security-policy].
 [esg-img]: https://raw.githubusercontent.com/encode/django-rest-framework/master/docs/img/premium/esg-readme.png
 [retool-img]: https://raw.githubusercontent.com/encode/django-rest-framework/master/docs/img/premium/retool-readme.png
 [bitio-img]: https://raw.githubusercontent.com/encode/django-rest-framework/master/docs/img/premium/bitio-readme.png
+[posthog-img]: https://raw.githubusercontent.com/encode/django-rest-framework/master/docs/img/premium/posthog-readme.png
+[cryptapi-img]: https://raw.githubusercontent.com/encode/django-rest-framework/master/docs/img/premium/cryptapi-readme.png
 
 [sentry-url]: https://getsentry.com/welcome/
-[stream-url]: https://getstream.io/try-the-api/?utm_source=drf&utm_medium=banner&utm_campaign=drf
+[stream-url]: https://getstream.io/?utm_source=DjangoRESTFramework&utm_medium=Webpage_Logo_Ad&utm_content=Developer&utm_campaign=DjangoRESTFramework_Jan2022_HomePage
 [rollbar-url]: https://rollbar.com/?utm_source=django&utm_medium=sponsorship&utm_campaign=freetrial
 [esg-url]: https://software.esg-usa.com/
 [retool-url]: https://retool.com/?utm_source=djangorest&utm_medium=sponsorship
 [bitio-url]: https://bit.io/jobs?utm_source=DRF&utm_medium=sponsor&utm_campaign=DRF_sponsorship
+[posthog-url]: https://posthog.com?utm_source=drf&utm_medium=sponsorship&utm_campaign=open-source-sponsorship
+[cryptapi-url]: https://cryptapi.io
 
 [oauth1-section]: https://www.django-rest-framework.org/api-guide/authentication/#django-rest-framework-oauth
 [oauth2-section]: https://www.django-rest-framework.org/api-guide/authentication/#django-oauth-toolkit

@@ -2,6 +2,7 @@ import uuid
 import warnings
 
 import pytest
+from django.db import models
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
@@ -109,6 +110,24 @@ class TestFieldMapping(TestCase):
         assert data['properties']['default_true']['default'] is True, "default must be true"
         assert data['properties']['default_false']['default'] is False, "default must be false"
         assert 'default' not in data['properties']['without_default'], "default must not be defined"
+
+    def test_nullable_fields(self):
+        class Model(models.Model):
+            rw_field = models.CharField(null=True)
+            ro_field = models.CharField(null=True)
+
+        class Serializer(serializers.ModelSerializer):
+            class Meta:
+                model = Model
+                fields = ["rw_field", "ro_field"]
+                read_only_fields = ["ro_field"]
+
+        inspector = AutoSchema()
+
+        data = inspector.map_serializer(Serializer())
+        assert data['properties']['rw_field']['nullable'], "rw_field nullable must be true"
+        assert data['properties']['ro_field']['nullable'], "ro_field nullable must be true"
+        assert data['properties']['ro_field']['readOnly'], "ro_field read_only must be true"
 
 
 @pytest.mark.skipif(uritemplate is None, reason='uritemplate not installed.')
@@ -711,6 +730,91 @@ class TestOperationIntrospection(TestCase):
 
         operationId = inspector.get_operation_id(path, method)
         assert operationId == 'listItem'
+
+    def test_different_request_response_objects(self):
+        class RequestSerializer(serializers.Serializer):
+            text = serializers.CharField()
+
+        class ResponseSerializer(serializers.Serializer):
+            text = serializers.BooleanField()
+
+        class CustomSchema(AutoSchema):
+            def get_request_serializer(self, path, method):
+                return RequestSerializer()
+
+            def get_response_serializer(self, path, method):
+                return ResponseSerializer()
+
+        path = '/'
+        method = 'POST'
+        view = create_view(
+            views.ExampleGenericAPIView,
+            method,
+            create_request(path),
+        )
+        inspector = CustomSchema()
+        inspector.view = view
+
+        components = inspector.get_components(path, method)
+        assert components == {
+            'Request': {
+                'properties': {
+                    'text': {
+                        'type': 'string'
+                    }
+                },
+                'required': ['text'],
+                'type': 'object'
+            },
+            'Response': {
+                'properties': {
+                    'text': {
+                        'type': 'boolean'
+                    }
+                },
+                'required': ['text'],
+                'type': 'object'
+            }
+        }
+
+        operation = inspector.get_operation(path, method)
+        assert operation == {
+            'operationId': 'createExample',
+            'description': '',
+            'parameters': [],
+            'requestBody': {
+                'content': {
+                    'application/json': {
+                        'schema': {
+                            '$ref': '#/components/schemas/Request'
+                        }
+                    },
+                    'application/x-www-form-urlencoded': {
+                        'schema': {
+                            '$ref': '#/components/schemas/Request'
+                        }
+                    },
+                    'multipart/form-data': {
+                        'schema': {
+                            '$ref': '#/components/schemas/Request'
+                        }
+                    }
+                }
+            },
+            'responses': {
+                '201': {
+                    'content': {
+                        'application/json': {
+                            'schema': {
+                                '$ref': '#/components/schemas/Response'
+                            }
+                        }
+                    },
+                    'description': ''
+                }
+            },
+            'tags': ['']
+        }
 
     def test_repeat_operation_ids(self):
         router = routers.SimpleRouter()

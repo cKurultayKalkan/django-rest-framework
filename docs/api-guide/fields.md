@@ -78,7 +78,14 @@ Defaults to `False`
 
 ### `source`
 
-The name of the attribute that will be used to populate the field.  May be a method that only takes a `self` argument, such as `URLField(source='get_absolute_url')`, or may use dotted notation to traverse attributes, such as `EmailField(source='user.email')`. When serializing fields with dotted notation, it may be necessary to provide a `default` value if any object is not present or is empty during attribute traversal.
+The name of the attribute that will be used to populate the field.  May be a method that only takes a `self` argument, such as `URLField(source='get_absolute_url')`, or may use dotted notation to traverse attributes, such as `EmailField(source='user.email')`. 
+
+When serializing fields with dotted notation, it may be necessary to provide a `default` value if any object is not present or is empty during attribute traversal. Beware of possible n+1 problems when using source attribute if you are accessing a relational orm model. For example:
+
+    class CommentSerializer(serializers.Serializer):
+        email = serializers.EmailField(source="user.email")
+
+would require user object to be fetched from database when it is not prefetched. If that is not wanted, be sure to be using `prefetch_related` and `select_related` methods appropriately. For more information about the methods refer to [django documentation][django-docs-select-related].
 
 The value `source='*'` has a special meaning, and is used to indicate that the entire object should be passed through to the field.  This can be useful for creating nested representations, or for fields which require access to the complete object in order to determine the output representation.
 
@@ -325,7 +332,7 @@ Corresponds to `django.db.models.fields.DateTimeField`.
 
 * `format` - A string representing the output format. If not specified, this defaults to the same value as the `DATETIME_FORMAT` settings key, which will be `'iso-8601'` unless set. Setting to a format string indicates that `to_representation` return values should be coerced to string output. Format strings are described below. Setting this value to `None` indicates that Python `datetime` objects should be returned by `to_representation`. In this case the datetime encoding will be determined by the renderer.
 * `input_formats` - A list of strings representing the input formats which may be used to parse the date.  If not specified, the `DATETIME_INPUT_FORMATS` setting will be used, which defaults to `['iso-8601']`.
-* `default_timezone` - A `pytz.timezone` representing the timezone. If not specified and the `USE_TZ` setting is enabled, this defaults to the [current timezone][django-current-timezone]. If `USE_TZ` is disabled, then datetime objects will be naive.
+* `default_timezone` - A `tzinfo` subclass (`zoneinfo` or `pytz`) prepresenting the timezone. If not specified and the `USE_TZ` setting is enabled, this defaults to the [current timezone][django-current-timezone]. If `USE_TZ` is disabled, then datetime objects will be naive.
 
 #### `DateTimeField` format strings.
 
@@ -583,6 +590,7 @@ The serializer method referred to by the `method_name` argument should accept a 
 
         class Meta:
             model = User
+            fields = '__all__'
 
         def get_days_since_joined(self, obj):
             return (now() - obj.date_joined).days
@@ -854,3 +862,4 @@ The [django-rest-framework-hstore][django-rest-framework-hstore] package provide
 [django-hstore]: https://github.com/djangonauts/django-hstore
 [python-decimal-rounding-modes]: https://docs.python.org/3/library/decimal.html#rounding-modes
 [django-current-timezone]: https://docs.djangoproject.com/en/stable/topics/i18n/timezones/#default-time-zone-and-current-time-zone
+[django-docs-select-related]: https://docs.djangoproject.com/en/3.1/ref/models/querysets/#django.db.models.query.QuerySet.select_related

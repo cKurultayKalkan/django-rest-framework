@@ -1163,6 +1163,30 @@ class TestMinMaxDecimalField(FieldValues):
     )
 
 
+class TestAllowEmptyStrDecimalFieldWithValidators(FieldValues):
+    """
+    Check that empty string ('', ' ') is acceptable value for the DecimalField
+    if allow_null=True and there are max/min validators
+    """
+    valid_inputs = {
+        None: None,
+        '': None,
+        ' ': None,
+        '  ': None,
+        5: Decimal('5'),
+        '0': Decimal('0'),
+        '10': Decimal('10'),
+    }
+    invalid_inputs = {
+        -1: ['Ensure this value is greater than or equal to 0.'],
+        11: ['Ensure this value is less than or equal to 10.'],
+    }
+    outputs = {
+        None: '',
+    }
+    field = serializers.DecimalField(max_digits=3, decimal_places=1, allow_null=True, min_value=0, max_value=10)
+
+
 class TestNoMaxDigitsDecimalField(FieldValues):
     field = serializers.DecimalField(
         max_value=100, min_value=0,
@@ -1196,12 +1220,12 @@ class TestNoStringCoercionDecimalField(FieldValues):
 
 
 class TestLocalizedDecimalField(TestCase):
-    @override_settings(USE_L10N=True, LANGUAGE_CODE='pl')
+    @override_settings(LANGUAGE_CODE='pl')
     def test_to_internal_value(self):
         field = serializers.DecimalField(max_digits=2, decimal_places=1, localize=True)
         assert field.to_internal_value('1,1') == Decimal('1.1')
 
-    @override_settings(USE_L10N=True, LANGUAGE_CODE='pl')
+    @override_settings(LANGUAGE_CODE='pl')
     def test_to_representation(self):
         field = serializers.DecimalField(max_digits=2, decimal_places=1, localize=True)
         assert field.to_representation(Decimal('1.1')) == '1,1'
@@ -1440,15 +1464,24 @@ class TestDefaultTZDateTimeField(TestCase):
         cls.field = serializers.DateTimeField()
         cls.kolkata = pytz.timezone('Asia/Kolkata')
 
+    def assertUTC(self, tzinfo):
+        """
+        Check UTC for datetime.timezone, ZoneInfo, and pytz tzinfo instances.
+        """
+        assert (
+            tzinfo is utc or
+            (getattr(tzinfo, "key", None) or getattr(tzinfo, "zone", None)) == "UTC"
+        )
+
     def test_default_timezone(self):
-        assert self.field.default_timezone() == utc
+        self.assertUTC(self.field.default_timezone())
 
     def test_current_timezone(self):
-        assert self.field.default_timezone() == utc
+        self.assertUTC(self.field.default_timezone())
         activate(self.kolkata)
         assert self.field.default_timezone() == self.kolkata
         deactivate()
-        assert self.field.default_timezone() == utc
+        self.assertUTC(self.field.default_timezone())
 
 
 @pytest.mark.skipif(pytz is None, reason='pytz not installed')
@@ -1485,7 +1518,7 @@ class TestNaiveDayLightSavingTimeTimeZoneDateTimeField(FieldValues):
     }
     outputs = {}
 
-    class MockTimezone:
+    class MockTimezone(pytz.BaseTzInfo):
         @staticmethod
         def localize(value, is_dst):
             raise pytz.InvalidTimeError()
@@ -1985,6 +2018,11 @@ class TestListField(FieldValues):
         with pytest.raises(serializers.ValidationError) as exc_info:
             field.to_internal_value(input_value)
         assert exc_info.value.detail == ['Expected a list of items but got type "dict".']
+
+    def test_constructor_misuse_raises(self):
+        # Test that `ListField` can only be instantiated with keyword arguments
+        with pytest.raises(TypeError):
+            serializers.ListField(serializers.CharField())
 
 
 class TestNestedListField(FieldValues):

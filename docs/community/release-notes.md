@@ -34,7 +34,51 @@ You can determine your currently installed version using `pip show`:
 
 ---
 
+## 3.13.x series
+
+### 3.13.1
+
+Date: 15th December 2021
+
+* Revert schema naming changes with function based `@api_view`. [#8297]
+
+### 3.13.0
+
+Date: 13th December 2021
+
+* Django 4.0 compatability. [#8178]
+* Add `max_length` and `min_length` options to `ListSerializer`. [#8165]
+* Add `get_request_serializer` and `get_response_serializer` hooks to `AutoSchema`. [#7424]
+* Fix OpenAPI representation of null-able read only fields. [#8116]
+* Respect `UNICODE_JSON` setting in API schema outputs. [#7991]
+* Fix for `RemoteUserAuthentication`. [#7158]
+* Make Field constructors keyword-only. [#7632]
+
+---
+
 ## 3.12.x series
+
+### 3.12.4
+
+Date: 26th March 2021
+
+* Revert use of `deque` instead of `list` for tracking throttling `.history`. (Due to incompatibility with DjangoRedis cache backend. See #7870) [#7872]
+
+### 3.12.3
+
+Date: 25th March 2021
+
+* Properly handle ATOMIC_REQUESTS when multiple database configurations are used. [#7739]
+* Bypass `COUNT` query when `LimitOffsetPagination` is configured but pagination params are not included on the request. [#6098]
+* Respect `allow_null=True` on `DecimalField`. [#7718]
+* Allow title cased `"Yes"`/`"No"` values with `BooleanField`. [#7739]
+* Add `PageNumberPagination.get_page_number()` method for overriding behavior. [#7652]
+* Fixed rendering of timedelta values in OpenAPI schemas, when present as default, min, or max fields. [#7641]
+* Render JSONFields with indentation in browsable API forms. [#6243]
+* Remove unnecessary database query in admin Token views. [#7852]
+* Raise validation errors when bools are passed to `PrimaryKeyRelatedField` fields, instead of casting to ints. [#7597]
+* Don't include model properties as automatically generated ordering fields with `OrderingFilter`. [#7609]
+* Use `deque` instead of `list` for tracking throttling `.history`. [#7849]
 
 ### 3.12.2
 
